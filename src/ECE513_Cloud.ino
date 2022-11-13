@@ -123,7 +123,7 @@ void loop()
 
   if (irValue < 50000)
     Serial.print(" No finger?");
-    
+  Serial.print("\n");    
 }
 
 void RGB_color(int red_light_value, int green_light_value, int blue_light_value)
