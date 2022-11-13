@@ -17,7 +17,7 @@ MAX30105 particleSensor;
 const byte RATE_SIZE = 4; //Increase this for more averaging. 4 is good.
 byte rates[RATE_SIZE]; //Array of heart rates
 byte rateSpot = 0;
-long lastBeat = 0; //Time at which the last beat occurred
+long lastBeat = 0; //int_time at which the last beat occurred
 
 float beatsPerMinute;
 int beatAvg;
@@ -36,7 +36,7 @@ int getSensor();
 // This is how often to read the sensor (every 1 second)
 std::chrono::milliseconds sensorCheckPeriod = 1s;
 
-// This keeps track of the last time we published
+// This keeps track of the last int_time we published
 unsigned long lastSensorCheckMs;
 
 // The is is the variable where the sensor value is stored.
@@ -46,17 +46,20 @@ int heartbeat;
 int red_light_pin= D3;
 int green_light_pin = D4;
 int blue_light_pin = D5;
+int int_time = 1000;
 
 void setup()
 {
+    // LED Pin Defined
     pinMode(red_light_pin, OUTPUT);
     pinMode(green_light_pin, OUTPUT);
     pinMode(blue_light_pin, OUTPUT);
+
     // MX30105 Setup
     Serial.begin(115200);
     Serial.println("Initializing...");
 
-    /*
+    
     // Initialize sensor
     if (!particleSensor.begin(Wire, I2C_SPEED_FAST)) //Use default I2C port, 400kHz speed
     {
@@ -71,30 +74,31 @@ void setup()
 
     // Particle Cloud Setup
     Particle.variable("heartbeat", heartbeat);
-    */
+    
 
 }
 
 void loop()
 {
+  /* For RGB LED Test
   RGB_color(255, 0, 0); // Red
-  delay(1000);
+  delay(int_time);
   RGB_color(0, 255, 0); // Green
-  delay(1000);
+  delay(int_time);
   RGB_color(0, 0, 255); // Blue
-  delay(1000);
+  delay(int_time);
   RGB_color(255, 255, 125); // Raspberry
-  delay(1000);
+  delay(int_time);
   RGB_color(0, 255, 255); // Cyan
-  delay(1000);
+  delay(int_time);
   RGB_color(255, 0, 255); // Magenta
-  delay(1000);
+  delay(int_time);
   RGB_color(255, 255, 0); // Yellow
-  delay(1000);
-  RGB_color(255, 255, 255); // White
-  delay(1000);
-
-  /*
+  delay(int_time);
+  */
+  
+  RGB_color(30, 0, 0); 
+  
   long irValue = particleSensor.getIR();
 
   if (checkForBeat(irValue) == true)
@@ -117,6 +121,8 @@ void loop()
       beatAvg /= RATE_SIZE;
     }
   }
+
+
   heartbeat = beatsPerMinute;
   Serial.print("IR=");
   Serial.print(irValue);
@@ -127,7 +133,7 @@ void loop()
 
   if (irValue < 50000)
     Serial.print(" No finger?");
-  */
+    
 }
 
 void RGB_color(int red_light_value, int green_light_value, int blue_light_value)
