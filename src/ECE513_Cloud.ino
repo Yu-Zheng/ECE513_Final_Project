@@ -1,9 +1,9 @@
 #include "Particle.h"
 #include <Wire.h>
-#include "MAX30105.h"
-#include "heartRate.h"
-#include <Adafruit_GFX.h>
-#include <Adafruit_SSD1306.h>
+#include "Module/MAX30105.h"
+#include "Module/heartRate.h"
+#include "Module/Adafruit_GFX.h"
+#include "Module/Adafruit_SSD1306.h"
 
 // Sensor Setup
 MAX30105 particleSensor;
@@ -53,7 +53,7 @@ void setup()
     pinMode(red_light_pin, OUTPUT);
     pinMode(green_light_pin, OUTPUT);
     pinMode(blue_light_pin, OUTPUT);
-
+    RGB_color(100, 0, 0); 
     // MX30105 Setup
     Serial.begin(115200);
     Serial.println("Initializing...");
@@ -87,7 +87,7 @@ void setup()
     // Display static text
     display.println("ECE513");
     display.display(); 
-
+    delay(2000);
 }
 
 void loop()
@@ -109,8 +109,7 @@ void loop()
   delay(int_time);
   */
   
-  RGB_color(30, 0, 0); 
-  
+  RGB_color(0, 100, 0);
   long irValue = particleSensor.getIR();
 
   if (checkForBeat(irValue) == true)
