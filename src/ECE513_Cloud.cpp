@@ -7,12 +7,14 @@
 #include <Wire.h>
 #include "MAX30105.h"
 #include "heartRate.h"
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
 
 // Sensor Setup
 void setup();
 void loop();
 void RGB_color(int red_light_value, int green_light_value, int blue_light_value);
-#line 7 "c:/Users/YZ/Documents/ECE513_Proj/ECE513_Cloud/src/ECE513_Cloud.ino"
+#line 9 "c:/Users/YZ/Documents/ECE513_Proj/ECE513_Cloud/src/ECE513_Cloud.ino"
 MAX30105 particleSensor;
 const byte RATE_SIZE = 4; //Increase this for more averaging. 4 is good.
 byte rates[RATE_SIZE]; //Array of heart rates
@@ -48,6 +50,12 @@ int green_light_pin = D4;
 int blue_light_pin = D5;
 int int_time = 1000;
 
+#define SCREEN_WIDTH 128 // OLED display width, in pixels
+#define SCREEN_HEIGHT 64 // OLED display height, in pixels
+
+// Declaration for an SSD1306 display connected to I2C (SDA, SCL pins)
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
+
 void setup()
 {
     // LED Pin Defined
@@ -75,6 +83,19 @@ void setup()
     // Particle Cloud Setup
     Particle.variable("heartbeat", heartbeat);
     
+    if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) { // Address 0x3D for 128x64
+      Serial.println(F("SSD1306 allocation failed"));
+      for(;;);
+    }
+    delay(2000);
+    display.clearDisplay();
+
+    display.setTextSize(3);
+    display.setTextColor(WHITE);
+    display.setCursor(2, 10);
+    // Display static text
+    display.println("ECE513");
+    display.display(); 
 
 }
 
@@ -132,6 +153,19 @@ void loop()
 
   if (irValue < 50000)
     Serial.print(" No finger?");
+  
+  display.clearDisplay();
+  display.setTextSize(0.5);
+  display.setTextColor(WHITE);
+  display.setCursor(0, 8);
+  display.println("IR Value:");
+  display.setTextSize(2);
+  display.setTextColor(WHITE);
+  display.setCursor(10, 20);
+  // Display static text
+  display.println(irValue);
+  display.display(); 
+
   Serial.print("\n");    
 }
 
