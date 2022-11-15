@@ -5,6 +5,7 @@
 #line 1 "c:/Users/YZ/Documents/ECE513_Proj/ECE513_Cloud/src/ECE513_Cloud.ino"
 #include "Particle.h"
 #include <Wire.h>
+#include "qrcode.h"
 #include "Module/MAX30105.h"
 #include "Module/spo2_algorithm.h"
 #include "Module/Adafruit_GFX.h"
@@ -12,11 +13,12 @@
 
 void setup();
 void loop();
+void drawQrCode(const char* qrStr, const char* lines[]);
 void OLED_Startup_Display(int Time_Delay);
 void OLED_Preparing(int progress);
 void OLED_Show_Value(int heartRate, int spo2);
 void RGB_color(int red_light_value, int green_light_value, int blue_light_value);
-#line 8 "c:/Users/YZ/Documents/ECE513_Proj/ECE513_Cloud/src/ECE513_Cloud.ino"
+#line 9 "c:/Users/YZ/Documents/ECE513_Proj/ECE513_Cloud/src/ECE513_Cloud.ino"
 MAX30105 particleSensor;
 
 #define MAX_BRIGHTNESS 255
@@ -41,9 +43,9 @@ byte pulseLED = 11; // Must be on PWM pin
 byte readLED = 13;  // Blinks with each data read
 
 // LED
-int red_light_pin = D3;
-int green_light_pin = D4;
-int blue_light_pin = D5;
+int red_light_pin = D2;
+int green_light_pin = D3;
+int blue_light_pin = D4;
 int int_time = 1000;
 
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
@@ -51,6 +53,8 @@ int int_time = 1000;
 
 // Declaration for an SSD1306 display connected to I2C (SDA, SCL pins)
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
+QRCode qrcode;
+const char* MESSAGE_CONFIGURE_WIFI[4] = { "Scan QR", "to setup", "WiFi", "" };
 
 void setup()
 {
@@ -60,8 +64,11 @@ void setup()
     for (;;)
       ;
   }
-  delay(2000);
+  delay(10000);
 
+  // const char *lines[4] = { "Scan to", "Join", "Lumifera", "WiFi" };
+	drawQrCode("hello", MESSAGE_CONFIGURE_WIFI);
+  delay(10000);
   OLED_Startup_Display(2000);
 
   // LED Pin Defined
@@ -103,25 +110,9 @@ void setup()
 
 void loop()
 {
-  /* For RGB LED Test
-  RGB_color(255, 0, 0); // Red
-  delay(int_time);
-  RGB_color(0, 255, 0); // Green
-  delay(int_time);
-  RGB_color(0, 0, 255); // Blue
-  delay(int_time);
-  RGB_color(255, 255, 125); // Raspberry
-  delay(int_time);
-  RGB_color(0, 255, 255); // Cyan
-  delay(int_time);
-  RGB_color(255, 0, 255); // Magenta
-  delay(int_time);
-  RGB_color(255, 255, 0); // Yellow
-  delay(int_time);
-  */
 
   bufferLength = 100; // buffer length of 100 stores 4 seconds of samples running at 25sps
-
+  RGB_color(50, 50, 0); // Yellow
   // read the first 100 samples, and determine the signal range
   for (byte i = 0; i < bufferLength; i++)
   {
@@ -165,6 +156,7 @@ void loop()
       irBuffer[i] = particleSensor.getIR();
       particleSensor.nextSample(); // We're finished with this sample so move to next sample
 
+      /*
       // send samples and calculation result to terminal program through UART
       Serial.print(F("red="));
       Serial.print(redBuffer[i], DEC);
@@ -182,6 +174,7 @@ void loop()
 
       Serial.print(F(", SPO2Valid="));
       Serial.println(validSPO2, DEC);
+      */
 
       OLED_Show_Value(heartRate, spo2);
     }
@@ -192,6 +185,41 @@ void loop()
   }
 
   Serial.print("\n");
+}
+
+void drawQrCode(const char* qrStr, const char* lines[]) {
+	uint8_t qrcodeData[qrcode_getBufferSize(3)];
+	qrcode_initText(&qrcode, qrcodeData, 3, ECC_LOW, qrStr);
+ 
+  // Text starting point
+  int cursor_start_y = 10;
+  int cursor_start_x = 4;
+  int font_height = 12;
+
+	// QR Code Starting Point
+  int offset_x = 62;
+  int offset_y = 2;
+
+  display.clearDisplay();
+  for (int y = 0; y < qrcode.size; y++) {
+      for (int x = 0; x < qrcode.size; x++) {
+          int newX = offset_x + (x * 2);
+          int newY = offset_y + (y * 2);
+
+          if (qrcode_getModule(&qrcode, x, y)) {
+							display.fillRect( newX, newY, 2, 2, 0);
+          }
+          else {
+							display.fillRect( newX, newY, 2, 2, 1);
+          }
+      }
+  }
+  display.setTextColor(1,0);
+  for (int i = 0; i < 4; i++) {
+    display.setCursor(cursor_start_x,cursor_start_y+font_height*i);
+    display.println(lines[i]);
+  }
+  display.display();
 }
 
 void OLED_Startup_Display(int Time_Delay)
