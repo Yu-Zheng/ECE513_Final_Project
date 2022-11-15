@@ -42,6 +42,16 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 
 void setup()
 {
+  if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C))
+  { // Address 0x3D for 128x64
+    Serial.println(F("SSD1306 allocation failed"));
+    for (;;)
+      ;
+  }
+  delay(2000);
+
+  OLED_Startup_Display(2000);
+
   // LED Pin Defined
   pinMode(red_light_pin, OUTPUT);
   pinMode(green_light_pin, OUTPUT);
@@ -77,40 +87,6 @@ void setup()
   // Particle Cloud Setup
   Particle.variable("heartbeat", heartRate);
 
-  if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C))
-  { // Address 0x3D for 128x64
-    Serial.println(F("SSD1306 allocation failed"));
-    for (;;)
-      ;
-  }
-  delay(2000);
-  display.clearDisplay();
-
-  display.setTextSize(3);
-  display.setTextColor(WHITE);
-  display.setCursor(0, 5);
-  // Display static text
-  display.println("ECE513");
-  display.setTextSize(1.8);
-  display.setTextColor(WHITE);
-  display.setCursor(0, 35);
-  display.println("Final Proj.");
-  display.display();
-  delay(7000);
-
-  display.clearDisplay();
-  display.setTextSize(2);
-  display.setTextColor(WHITE);
-  display.setCursor(0, 0);
-  display.println("Members:");
-  display.setTextSize(2);
-  display.setTextColor(WHITE);
-  display.setCursor(0, 19);
-  display.println("Yu-Zheng");
-  display.println("Chun-lin");
-  display.println("Alonso");
-  display.display();
-  delay(7000);
 }
 
 void loop()
@@ -205,6 +181,38 @@ void loop()
 
   Serial.print("\n");
 }
+
+void OLED_Startup_Display(int Time_Delay)
+{
+  display.clearDisplay();
+
+  display.setTextSize(3);
+  display.setTextColor(WHITE);
+  display.setCursor(0, 5);
+  // Display static text
+  display.println("ECE513");
+  display.setTextSize(1.8);
+  display.setTextColor(WHITE);
+  display.setCursor(0, 35);
+  display.println("Final Proj.");
+  display.display();
+  delay(Time_Delay);
+
+  display.clearDisplay();
+  display.setTextSize(2);
+  display.setTextColor(WHITE);
+  display.setCursor(0, 0);
+  display.println("Members:");
+  display.setTextSize(2);
+  display.setTextColor(WHITE);
+  display.setCursor(0, 19);
+  display.println("Yu-Zheng");
+  display.println("Chun-lin");
+  display.println("Alonso");
+  display.display();
+  delay(Time_Delay);
+}
+
 
 void OLED_Preparing(int progress)
 {
