@@ -15,6 +15,7 @@ void setup();
 void loop();
 void drawQrCode(const char* qrStr, const char* lines[]);
 void OLED_Startup_Display(int Time_Delay);
+void Serial_Print_Value(int redBuffer, int irBuffer, int heartRate, int validHeartRate, int spo2, int validSPO2);
 void OLED_Preparing(int progress);
 void OLED_Show_Value(int heartRate, int spo2);
 void RGB_color(int red_light_value, int green_light_value, int blue_light_value);
@@ -156,26 +157,7 @@ void loop()
       irBuffer[i] = particleSensor.getIR();
       particleSensor.nextSample(); // We're finished with this sample so move to next sample
 
-      /*
-      // send samples and calculation result to terminal program through UART
-      Serial.print(F("red="));
-      Serial.print(redBuffer[i], DEC);
-      Serial.print(F(", ir="));
-      Serial.print(irBuffer[i], DEC);
-
-      Serial.print(F(", HR="));
-      Serial.print(heartRate, DEC);
-
-      Serial.print(F(", HRvalid="));
-      Serial.print(validHeartRate, DEC);
-
-      Serial.print(F(", SPO2="));
-      Serial.print(spo2, DEC);
-
-      Serial.print(F(", SPO2Valid="));
-      Serial.println(validSPO2, DEC);
-      */
-
+      Serial_Print_Value(redBuffer[i], irBuffer[i],heartRate,validHeartRate,spo2,validSPO2);
       OLED_Show_Value(heartRate, spo2);
     }
 
@@ -222,6 +204,7 @@ void drawQrCode(const char* qrStr, const char* lines[]) {
   display.display();
 }
 
+
 void OLED_Startup_Display(int Time_Delay)
 {
   display.clearDisplay();
@@ -253,6 +236,26 @@ void OLED_Startup_Display(int Time_Delay)
   delay(Time_Delay);
 }
 
+void Serial_Print_Value(int redBuffer, int irBuffer, int heartRate, int validHeartRate, int spo2, int validSPO2)
+{
+  // send samples and calculation result to terminal program through UART
+  Serial.print(F("red="));
+  Serial.print(redBuffer, DEC);
+  Serial.print(F(", ir="));
+  Serial.print(irBuffer, DEC);
+
+  Serial.print(F(", HR="));
+  Serial.print(heartRate, DEC);
+
+  Serial.print(F(", HRvalid="));
+  Serial.print(validHeartRate, DEC);
+
+  Serial.print(F(", SPO2="));
+  Serial.print(spo2, DEC);
+
+  Serial.print(F(", SPO2Valid="));
+  Serial.println(validSPO2, DEC);
+}
 
 void OLED_Preparing(int progress)
 {
