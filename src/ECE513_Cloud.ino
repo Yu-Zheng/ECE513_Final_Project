@@ -6,6 +6,9 @@
 #include "Module/Adafruit_GFX.h"
 #include "Module/Adafruit_SSD1306.h"
 
+
+SYSTEM_THREAD(ENABLED);
+
 MAX30105 particleSensor;
 
 #define MAX_BRIGHTNESS 255
@@ -92,7 +95,9 @@ void setup()
   particleSensor.setup(ledBrightness, sampleAverage, ledMode, sampleRate, pulseWidth, adcRange); // Configure sensor with these settings
 
   // Particle Cloud Setup
-  Particle.variable("heartbeat", heartRate);
+
+  Particle.variable("hr", (int)heartRate);
+  Particle.variable("spo2", (int)spo2);
 }
 
 void loop()
@@ -139,17 +144,18 @@ void loop()
       irBuffer[i] = particleSensor.getIR();
       particleSensor.nextSample(); // We're finished with this sample so move to next sample
       
-      String Cloud_HR = String(heartRate);
-      String Cloud_SPO2 = String(spo2);
-      Particle.publish("hr", Cloud_HR, PRIVATE);
-      Particle.publish("spo2", Cloud_SPO2, PRIVATE);
-      Serial_Print_Value(redBuffer[i], irBuffer[i], heartRate, validHeartRate, spo2, validSPO2);
-      OLED_Show_Value(heartRate, spo2);
-    }
 
+    }
+    String Cloud_HR = String(heartRate);
+    String Cloud_SPO2 = String(spo2);
+    Particle.publish("hr", Cloud_HR, PRIVATE);
+    Particle.publish("spo2", Cloud_SPO2, PRIVATE);
+    //Serial_Print_Value(redBuffer[i], irBuffer[i], heartRate, validHeartRate, spo2, validSPO2);
+    OLED_Show_Value(heartRate, spo2);
     // After gathering 25 new samples recalculate HR and SP02
     maxim_heart_rate_and_oxygen_saturation(irBuffer, bufferLength, redBuffer, &spo2, &validSPO2, &heartRate, &validHeartRate);
     RGB_color(0, 0, 100);
+    delay(1000);
   }
 
   Serial.print("\n");
