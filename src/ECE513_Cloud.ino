@@ -35,13 +35,14 @@ int green_light_pin = D3;
 int blue_light_pin = D4;
 int int_time = 1000;
 
+
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
 #define SCREEN_HEIGHT 64 // OLED display height, in pixels
 
 // Declaration for an SSD1306 display connected to I2C (SDA, SCL pins)
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 QRCode qrcode;
-const char* MESSAGE_CONFIGURE_WIFI[4] = { "Scan QR", "to login", "HR System", "" };
+const char *MESSAGE_CONFIGURE_WIFI[4] = {"Scan QR", "to login", "HR System", ""};
 
 void setup()
 {
@@ -54,7 +55,7 @@ void setup()
   delay(10000);
 
   // const char *lines[4] = { "Scan to", "Join", "Lumifera", "WiFi" };
-	drawQrCode("hello", MESSAGE_CONFIGURE_WIFI);
+  drawQrCode("hello", MESSAGE_CONFIGURE_WIFI);
   delay(10000);
   OLED_Startup_Display(2000);
 
@@ -92,13 +93,12 @@ void setup()
 
   // Particle Cloud Setup
   Particle.variable("heartbeat", heartRate);
-
 }
 
 void loop()
 {
 
-  bufferLength = 100; // buffer length of 100 stores 4 seconds of samples running at 25sps
+  bufferLength = 100;   // buffer length of 100 stores 4 seconds of samples running at 25sps
   RGB_color(50, 50, 0); // Yellow
   // read the first 100 samples, and determine the signal range
   for (byte i = 0; i < bufferLength; i++)
@@ -111,10 +111,6 @@ void loop()
     particleSensor.nextSample(); // We're finished with this sample so move to next sample
 
     OLED_Preparing(i);
-    /*Serial.print(F("red="));
-    Serial.print(redBuffer[i], DEC);
-    Serial.print(F(", ir="));
-    Serial.println(irBuffer[i], DEC);*/
   }
 
   // calculate heart rate and SpO2 after first 100 samples (first 4 seconds of samples)
@@ -142,8 +138,12 @@ void loop()
       redBuffer[i] = particleSensor.getRed();
       irBuffer[i] = particleSensor.getIR();
       particleSensor.nextSample(); // We're finished with this sample so move to next sample
-
-      Serial_Print_Value(redBuffer[i], irBuffer[i],heartRate,validHeartRate,spo2,validSPO2);
+      
+      String Cloud_HR = String(heartRate);
+      String Cloud_SPO2 = String(spo2);
+      Particle.publish("hr", Cloud_HR, PRIVATE);
+      Particle.publish("spo2", Cloud_SPO2, PRIVATE);
+      Serial_Print_Value(redBuffer[i], irBuffer[i], heartRate, validHeartRate, spo2, validSPO2);
       OLED_Show_Value(heartRate, spo2);
     }
 
@@ -155,41 +155,46 @@ void loop()
   Serial.print("\n");
 }
 
-void drawQrCode(const char* qrStr, const char* lines[]) {
-	uint8_t qrcodeData[qrcode_getBufferSize(3)];
-	qrcode_initText(&qrcode, qrcodeData, 3, ECC_LOW, qrStr);
- 
+void drawQrCode(const char *qrStr, const char *lines[])
+{
+  uint8_t qrcodeData[qrcode_getBufferSize(3)];
+  qrcode_initText(&qrcode, qrcodeData, 3, ECC_LOW, qrStr);
+
   // Text starting point
   int cursor_start_y = 7;
   int cursor_start_x = 4;
   int font_height = 12;
 
-	// QR Code Starting Point
+  // QR Code Starting Point
   int offset_x = 62;
   int offset_y = 2;
 
   display.clearDisplay();
-  for (int y = 0; y < qrcode.size; y++) {
-      for (int x = 0; x < qrcode.size; x++) {
-          int newX = offset_x + (x * 2);
-          int newY = offset_y + (y * 2);
+  for (int y = 0; y < qrcode.size; y++)
+  {
+    for (int x = 0; x < qrcode.size; x++)
+    {
+      int newX = offset_x + (x * 2);
+      int newY = offset_y + (y * 2);
 
-          if (qrcode_getModule(&qrcode, x, y)) {
-							display.fillRect( newX, newY, 2, 2, 0);
-          }
-          else {
-							display.fillRect( newX, newY, 2, 2, 1);
-          }
+      if (qrcode_getModule(&qrcode, x, y))
+      {
+        display.fillRect(newX, newY, 2, 2, 0);
       }
+      else
+      {
+        display.fillRect(newX, newY, 2, 2, 1);
+      }
+    }
   }
-  display.setTextColor(1,0);
-  for (int i = 0; i < 4; i++) {
-    display.setCursor(cursor_start_x,cursor_start_y+font_height*i);
+  display.setTextColor(1, 0);
+  for (int i = 0; i < 4; i++)
+  {
+    display.setCursor(cursor_start_x, cursor_start_y + font_height * i);
     display.println(lines[i]);
   }
   display.display();
 }
-
 
 void OLED_Startup_Display(int Time_Delay)
 {
