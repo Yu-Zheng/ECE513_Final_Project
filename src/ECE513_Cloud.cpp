@@ -54,7 +54,7 @@ int int_time = 1000;
 // Declaration for an SSD1306 display connected to I2C (SDA, SCL pins)
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 QRCode qrcode;
-const char* MESSAGE_CONFIGURE_WIFI[4] = { "Scan QR", "to setup", "WiFi", "" };
+const char* MESSAGE_CONFIGURE_WIFI[4] = { "Scan QR", "to login", "HR System", "" };
 
 void setup()
 {
@@ -192,7 +192,7 @@ void drawQrCode(const char* qrStr, const char* lines[]) {
 	qrcode_initText(&qrcode, qrcodeData, 3, ECC_LOW, qrStr);
  
   // Text starting point
-  int cursor_start_y = 10;
+  int cursor_start_y = 7;
   int cursor_start_x = 4;
   int font_height = 12;
 
