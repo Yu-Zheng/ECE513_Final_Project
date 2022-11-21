@@ -49,24 +49,25 @@ const char *MESSAGE_CONFIGURE_WIFI[4] = {"Scan QR", "to login", "HR System", ""}
 
 void setup()
 {
+  // LED Pin Defined
+  pinMode(red_light_pin, OUTPUT);
+  pinMode(green_light_pin, OUTPUT);
+  pinMode(blue_light_pin, OUTPUT);
+  RGB_color(256, 0, 0);
+  
   if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C))
   { // Address 0x3D for 128x64
     Serial.println(F("SSD1306 allocation failed"));
     for (;;)
       ;
   }
-  delay(10000);
+  delay(1000);
 
   // const char *lines[4] = { "Scan to", "Join", "Lumifera", "WiFi" };
   drawQrCode("hello", MESSAGE_CONFIGURE_WIFI);
-  delay(10000);
-  OLED_Startup_Display(2000);
+  delay(3000);
+  OLED_Startup_Display(3000);
 
-  // LED Pin Defined
-  pinMode(red_light_pin, OUTPUT);
-  pinMode(green_light_pin, OUTPUT);
-  pinMode(blue_light_pin, OUTPUT);
-  RGB_color(100, 0, 0);
 
   Serial.begin(115200); // initialize serial communication at 115200 bits per second:
 
@@ -104,7 +105,7 @@ void loop()
 {
 
   bufferLength = 100;   // buffer length of 100 stores 4 seconds of samples running at 25sps
-  RGB_color(50, 50, 0); // Yellow
+  RGB_color(256, 256, 0); // Yellow
   // read the first 100 samples, and determine the signal range
   for (byte i = 0; i < bufferLength; i++)
   {
@@ -124,7 +125,7 @@ void loop()
   // Continuously taking samples from MAX30102.  Heart rate and SpO2 are calculated every 1 second
   while (1)
   {
-    RGB_color(0, 100, 0);
+    RGB_color(0, 256, 0);
     // dumping the first 25 sets of samples in the memory and shift the last 75 sets of samples to the top
     for (byte i = 25; i < 100; i++)
     {
@@ -154,7 +155,7 @@ void loop()
     OLED_Show_Value(heartRate, spo2);
     // After gathering 25 new samples recalculate HR and SP02
     maxim_heart_rate_and_oxygen_saturation(irBuffer, bufferLength, redBuffer, &spo2, &validSPO2, &heartRate, &validHeartRate);
-    RGB_color(0, 0, 100);
+    RGB_color(0, 0, 256);
     delay(1000);
   }
 
